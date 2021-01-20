@@ -48,13 +48,18 @@ def predict_csv():
     result = {"success": False}
     data = request.files['heartwave_data']
     df = pd.read_csv(data)
-    arr = df.iloc[:1, :187].values
+    print(df)
+    json_f = df.to_json()
+    print(json_f)
+    arr = df.iloc[:1, :186].values
     arr1 = arr.reshape(len(arr), 186, 1)
     with graph.as_default():
         model = load_model(model_file, custom_objects={'auc': auc})
         prediction = model.predict(arr1)
+        print(prediction)
         result["success"] = True
         result["prediction"] = str(prediction)
+        result["input"] = json_f
 
     return jsonify(result)
 
