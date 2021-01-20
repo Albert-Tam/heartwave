@@ -22,9 +22,6 @@ global graph
 graph = tf.compat.v1.get_default_graph()
 
 
-# model = load_model(model_file, custom_objects={'auc': auc})
-
-
 @app.route('/')
 def home():
     return '<h1>It works!!!</h1>'
