@@ -4,6 +4,7 @@ import json
 import os
 import tensorflow as tf
 from tensorflow.keras.models import load_model
+import numpy as np
 
 app = Flask(__name__)
 
@@ -49,17 +50,28 @@ def predict_csv():
     data = request.files['heartwave_data']
     df = pd.read_csv(data)
     print(df)
-    json_f = df.to_json()
-    print(json_f)
+    vals = df.values[0][1:]
+    print(vals)
+    print(type(vals))
+    # json_f = df.to_json()
+    # print(json_f)
     arr = df.iloc[:1, :186].values
     arr1 = arr.reshape(len(arr), 186, 1)
+    beats = ['Normal Beat',
+             'Supraventricular Ectopic Beat',
+             'Ventricular Ectopic Beat',
+             'Fusion Beat',
+             'Unknown Beat']
     with graph.as_default():
         model = load_model(model_file, custom_objects={'auc': auc})
         prediction = model.predict(arr1)
         print(prediction)
+        max_beat = np.array(prediction).argmax()
+        beat_name = beats[max_beat]
         result["success"] = True
-        result["prediction"] = str(prediction)
-        result["input"] = json_f
+        result["prediction"] = prediction.tolist()[0]
+        result["input"] = vals.tolist()
+        result["beat name"] = beat_name
 
     return jsonify(result)
 
